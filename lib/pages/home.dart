@@ -36,11 +36,36 @@ class _HomePageState extends State<HomePage> {
               builder: (BuildContext context, AsyncSnapshot<BoxEvent> snapshot) {
                 if (snapshot.hasData) {
                   return ListView(
-                    children: box.values.map((item) {
+                    reverse: true,
+                    children: box.values.toList().reversed.map((item) {
                       var message = json.decode(item);
                       return Align(
                         alignment: (message["from"] == userId) ? Alignment.centerRight : Alignment.centerLeft,
-                        child: Text(message["message"]),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: (message["from"] == userId)
+                                  ? const BorderRadius.only(
+                                      topLeft: Radius.circular(10),
+                                      topRight: Radius.circular(10),
+                                      bottomLeft: Radius.circular(10),
+                                      bottomRight: Radius.circular(0),
+                                    )
+                                  : const BorderRadius.only(
+                                      topLeft: Radius.circular(10),
+                                      topRight: Radius.circular(10),
+                                      bottomLeft: Radius.circular(0),
+                                      bottomRight: Radius.circular(10),
+                                    ),
+                              color: (message["from"] == userId) ? Colors.blue.shade300 : Colors.grey.shade300,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(message["message"]),
+                            ),
+                          ),
+                        ),
                       );
                     }).toList(),
                   );

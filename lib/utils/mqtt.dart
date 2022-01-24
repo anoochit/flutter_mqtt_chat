@@ -11,7 +11,7 @@ late MqttServerClient client;
 mqttSubscribe() async {
   client = MqttServerClient.withPort(mqttHost, mqttClientId, mqttPort);
   client.keepAlivePeriod = 30;
-  //client.autoReconnect = true;
+  client.autoReconnect = true;
   await client.connect();
 
   client.onConnected = () {
@@ -27,7 +27,7 @@ mqttSubscribe() async {
   };
 
   if (client.connectionStatus!.state == MqttConnectionState.connected) {
-    client.subscribe("chat", MqttQos.exactlyOnce);
+    client.subscribe("chat/#", MqttQos.exactlyOnce);
     client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
       final recMess = c[0].payload as MqttPublishMessage;
       final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
@@ -45,11 +45,11 @@ mqttSubscribe() async {
 
 mqttPublish({required String message}) async {
   final builder = MqttClientPayloadBuilder();
-  var messagsString =
-      '{"message" : "${message}", "from" : "$userId" ,"timeStamp" : "${DateTime.now().millisecondsSinceEpoch}" }';
+  var timeStamp = DateTime.now().microsecondsSinceEpoch.toString();
+  var messagsString = '{"message" : "$message", "from" : "$userId" ,"timeStamp" : "$timeStamp" }';
 
   builder.addUTF8String(messagsString);
   if (client.connectionStatus!.state == MqttConnectionState.connected) {
-    client.publishMessage("chat", MqttQos.exactlyOnce, builder.payload!, retain: true);
+    client.publishMessage('chat/$timeStamp', MqttQos.exactlyOnce, builder.payload!, retain: true);
   }
 }
