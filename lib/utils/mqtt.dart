@@ -29,7 +29,20 @@ mqttSubscribe() async {
   };
 
   if (client.connectionStatus!.state == MqttConnectionState.connected) {
-    client.subscribe("chat/#", MqttQos.exactlyOnce);
+    client.subscribe("chat/#", MqttQos.atMostOnce);
+
+    client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+      final recMess = c![0].payload as MqttPublishMessage;
+      final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+      log("message payload => " + pt);
+
+      var box = Hive.box('messages');
+      var doc = json.decode(pt);
+      // add to hivedb
+      var message =
+          '{"message" : "${utf8.decode(doc["message"].codeUnits)}", "from" : "${doc["from"]}" ,"timeStamp" : "${doc["timeStamp"]}" }';
+      box.put(doc["timeStamp"], message);
+    });
   }
 }
 

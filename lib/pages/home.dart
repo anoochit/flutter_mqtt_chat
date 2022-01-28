@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mqtt_chat/const.dart';
 import 'package:mqtt_chat/utils/mqtt.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -42,7 +40,7 @@ class _HomePageState extends State<HomePage> {
               connectivityBuilder: (context, value, child) {
                 return value == ConnectivityResult.none ? loadOffLineMessage() : child;
               },
-              child: loadOnlineMessage(),
+              child: loadMessage(),
             ),
           ),
           ChatInputBox(textEditingController: textEditingController)
@@ -51,32 +49,26 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // show message item from broker
-  StreamBuilder<List<MqttReceivedMessage<MqttMessage>>> loadOnlineMessage() {
-    return StreamBuilder(
-      stream: client.updates!,
-      builder: (BuildContext context, AsyncSnapshot<List<MqttReceivedMessage<MqttMessage>>> snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          final recMess = snapshot.data![0].payload as MqttPublishMessage;
-          final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-          log("message payload => " + pt);
-
-          var box = Hive.box('messages');
-          var doc = json.decode(pt);
-          // add to hivedb
-          var message =
-              '{"message" : "${utf8.decode(doc["message"].codeUnits)}", "from" : "${doc["from"]}" ,"timeStamp" : "${doc["timeStamp"]}" }';
-          box.put(doc["timeStamp"], message);
-          return loadOffLineMessage();
-        }
-
-        return Container();
-      },
+  Widget loadOffLineMessage() {
+    return Column(
+      children: [
+        Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.all(4.0),
+          color: Colors.red,
+          child: const Center(
+            child: Text('You are offline'),
+          ),
+        ),
+        Expanded(
+          child: loadMessage(),
+        ),
+      ],
     );
   }
 
   // show message item from hive
-  loadOffLineMessage() {
+  loadMessage() {
     return ListView(
       reverse: true,
       children: box.values.toList().reversed.map((item) {
