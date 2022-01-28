@@ -109,6 +109,7 @@ class ChatInputBox extends StatelessWidget {
             child: TextFormField(
               controller: textEditingController,
               decoration: const InputDecoration(
+                border: InputBorder.none,
                 hintText: 'Type your message',
               ),
               onFieldSubmitted: (value) {
