@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:mqtt_chat/utils/mqtt.dart';
 
@@ -15,18 +17,32 @@ class ChatInputBox extends StatelessWidget {
       children: [
         const Divider(thickness: 1.0, height: 0.0),
         SizedBox(
-          height: 64,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(8.0),
             child: TextFormField(
               controller: textEditingController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Type your message',
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    log("send message");
+                    if (textEditingController.text.trim().isNotEmpty) {
+                      mqttPublish(message: textEditingController.text);
+                      textEditingController.clear();
+                    }
+                  },
+                  icon: const Icon(Icons.send),
+                ),
               ),
+              // maxLines: 1,
+              // minLines: 1,
+              //keyboardType: TextInputType.multiline,
               onFieldSubmitted: (value) {
-                mqttPublish(message: value);
-                textEditingController.clear();
+                if (value.trim().isNotEmpty) {
+                  mqttPublish(message: textEditingController.text);
+                  textEditingController.clear();
+                }
               },
             ),
           ),

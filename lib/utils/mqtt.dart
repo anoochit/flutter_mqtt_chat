@@ -37,10 +37,10 @@ mqttSubscribe() async {
       log("message payload => " + pt);
 
       var box = Hive.box('messages');
-      var doc = json.decode(pt);
+      var doc = json.decode(utf8.decode(pt.codeUnits));
       // add to hivedb
       var message =
-          '{"message" : "${utf8.decode(doc["message"].codeUnits)}", "from" : "${doc["from"]}" ,"timeStamp" : "${doc["timeStamp"]}" }';
+          '{"message" : "${doc["message"]}", "from" : "${doc["from"]}" ,"timeStamp" : "${doc["timeStamp"]}" }';
       box.put(doc["timeStamp"], message);
     });
   }
