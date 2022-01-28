@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
               connectivityBuilder: (context, value, child) {
                 return value == ConnectivityResult.none ? loadOffLineMessage() : child;
               },
-              child: loadMessage(),
+              child: loadOnlineMessage(),
             ),
           ),
           ChatInputBox(textEditingController: textEditingController)
@@ -64,6 +64,18 @@ class _HomePageState extends State<HomePage> {
           child: loadMessage(),
         ),
       ],
+    );
+  }
+
+  Widget loadOnlineMessage() {
+    return StreamBuilder(
+      stream: box.watch(),
+      builder: (BuildContext context, AsyncSnapshot<BoxEvent> snapshot) {
+        if (snapshot.hasData) {
+          return loadMessage();
+        }
+        return Container();
+      },
     );
   }
 
