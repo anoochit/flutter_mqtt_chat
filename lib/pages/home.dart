@@ -51,6 +51,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // show message item from broker
   StreamBuilder<List<MqttReceivedMessage<MqttMessage>>> loadOnlineMessage() {
     return StreamBuilder(
       stream: client.updates!,
@@ -74,6 +75,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // show message item from hive
   loadOffLineMessage() {
     return ListView(
       reverse: true,
@@ -121,6 +123,7 @@ class ChatInputBox extends StatelessWidget {
   }
 }
 
+// chat message item widget
 class ChatMessageItem extends StatelessWidget {
   const ChatMessageItem({
     Key? key,
